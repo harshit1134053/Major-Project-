@@ -1,0 +1,55 @@
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+
+app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Store posts in memory (not recommended for production)
+let posts = [];
+
+// Handle post creation
+app.post('/post', (req, res) => {
+  const postContent = req.body.postContent;
+  posts.push(postContent);
+  res.redirect('/');
+});
+
+// Serve HTML file
+app.get('/', (req, res) => {
+  let postHTML = '';
+  posts.forEach((post) => {
+    postHTML += `<div class="post">${post}</div>`;
+  });
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>My Social Media Website</title>
+      <link rel="stylesheet" type="text/css" href="/styles.css">
+    </head>
+    <body>
+      <div class="container">
+        <h1>Welcome to My Social Media Website</h1>
+        <form action="/post" method="POST">
+          <textarea name="postContent" placeholder="Write something..."></textarea>
+          <button type="submit">Post</button>
+        </form>
+        <div class="posts">
+          ${postHTML}
+        </div>
+      </div>
+
+      <script src="/script.js"></script>
+    </body>
+    </html>
+  `;
+  
+  res.send(html);
+});
+
+// Start the server
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
+});
